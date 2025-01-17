@@ -17,7 +17,7 @@ jobs:
         uses: actions/checkout@v3  # Utiliza la acción de checkout para clonar el código
 
       # 2. Paso para validar README.md existe y no está vacío
-      - name: Verify README syntax 
+      - name: Syntax Check 
         run: |  # Comandos a ejecutar en este paso
           # Comprobar si el archivo README.md existe
           if [ -f README.md ]; then

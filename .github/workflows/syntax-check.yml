@@ -1,17 +1,46 @@
+# Nombre del workflow
 name: Syntax Check
 
+# Define cuándo se debe ejecutar este flujo de trabajo
 on:
   pull_request:
     branches:
-      - develop
+      - develop  # El flujo se activará para Pull Requests hacia la rama develop
 
 jobs:
-  check-readme:
-    runs-on: ubuntu-latest
+  check-readme:  
+    runs-on: ubuntu-latest  # Especifica el sistema operativo en el que se ejecutará el job
 
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+    steps:  # Lista de pasos que se ejecutarán en el trabajo
+      # 1. Paso para clonar el repositorio
+      - name: Checkout repository 
+        uses: actions/checkout@v3  # Utiliza la acción de checkout para clonar el código
 
-      - name: Verify README syntax
-        run: markdownlint README.md
+      # 2. Paso para validar README.md existe y no está vacío
+      - name: Verify README syntax 
+        run: |  # Comandos a ejecutar en este paso
+          # Comprobar si el archivo README.md existe
+          if [ -f README.md ]; then
+            echo "El README.md existe."  # Mensaje de éxito si el archivo existe
+          else
+            echo "Error: README.md no encontrado."  # Mensaje de error si el archivo no existe
+            exit 1  # Salir con un código de error para fallar el job
+          fi
+          
+          # Comprobar si el README.md no está vacío
+          if [ ! -s README.md ]; then
+            echo "Error: README.md está vacío."  # Mensaje de error si el archivo está vacío
+            exit 1  # Salir con un código de error para fallar el job
+          fi
+
+          # Mensaje final si la validación es exitosa
+          echo "Validación del README.md completada con éxito."
+
+      # 3. Paso para validar la sintaxis de Markdown
+      - name: Validar sintaxis de Markdown
+        run: |
+          # Instala markdownlint si no está instalado
+          npm install -g markdownlint-cli
+          
+          # Ejecuta markdownlint en README.md
+          markdownlint README.md

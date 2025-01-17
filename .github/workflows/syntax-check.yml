@@ -15,4 +15,3 @@ jobs:
 
       - name: Verify README syntax
         run: markdownlint README.md
-

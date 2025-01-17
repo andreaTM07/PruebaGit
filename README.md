@@ -2,6 +2,7 @@
 
 Este proyecto demuestra la implementación de un flujo de integración y entrega 
 continua (CI/CD) utilizando herramientas como GitHub Actions y CircleCI.
+
 ## Características
 
 - **Configuración de ramas protegidas:** `main` y `develop`.

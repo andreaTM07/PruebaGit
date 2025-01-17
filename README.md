@@ -6,7 +6,3 @@ Este proyecto demuestra la implementacion de un flujo de integracion y entrega c
 - Configuración de ramas protegidas (`main` y `develop`).
 - Workflows automatizados para verificar sintaxis y simular despliegues.
 - Integración con CircleCI para ejecutar builds y pruebas.
-
----
-
-Este proyecto demuestra la implementación de un flujo de integración y entrega continua.

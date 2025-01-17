@@ -8,4 +8,3 @@ Este proyecto demuestra la implementación de un flujo de integración y entrega
 - Integración con CircleCI para ejecutar builds y pruebas.
 
 ---
-

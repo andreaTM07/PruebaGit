@@ -1,40 +1,36 @@
-version: 2.1
+version: 2.1  # Versión de la configuración de CircleCI
 
 jobs:
   build:
     docker:
-      - image: circleci/python:3.8  # Cambia a la imagen python deseada
+      - image: circleci/bash:latest  # Imagen de Docker con Bash
     steps:
-      - checkout
+      - checkout  # Clona el repositorio
       - run:
-          name: Compilar Script
+          name: Compilar el script de cálculo
           command: |
-            echo "#!/bin/bash" > script.sh
-            echo "echo 'Hello, CircleCI!'" >> script.sh
-            chmod +x script.sh
+            chmod +x calculator.sh  # Hacer el script ejecutable
+            echo "Script de cálculo listo para ejecutar."
 
   test:
     docker:
-      - image: circleci/python:3.8  # Cambia a la imagen python deseada
+      - image: circleci/bash:latest  # Imagen de Docker con Bash
     steps:
-      - checkout
+      - checkout  # Clona el repositorio
       - run:
-          name: Ejecutar Pruebas
+          name: Instalar BATS
           command: |
-            echo "#!/bin/bash" > test_script.sh
-            echo "if ./script.sh; then" >> test_script.sh
-            echo "  echo 'Test Passed'" >> test_script.sh
-            echo "else" >> test_script.sh
-            echo "  echo 'Test Failed'" >> test_script.sh
-            echo "fi"
-            chmod +x test_script.sh
-            ./test_script.sh
+            sudo apt-get update
+            sudo apt-get install -y bats  # Instala el framework BATS
+      - run:
+          name: Ejecutar pruebas unitarias
+          command: bats test_calculator.bats  # Ejecuta el archivo de pruebas
 
 workflows:
   version: 2
   build_and_test:
     jobs:
-      - build
-      - test:
+      - build  # Ejecuta el job de Build
+      - test:  # Ejecuta el job de Test
           requires:
-            - build
+            - build  # El job de Test depende del job de Build

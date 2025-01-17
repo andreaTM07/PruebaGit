@@ -1,36 +1,85 @@
-version: 2.1  # Versión de la configuración de CircleCI
+version: 2.1
 
 jobs:
   build:
     docker:
-      - image: circleci/bash:latest  # Imagen de Docker con Bash
+      - image: cimg/base:2024.01
     steps:
-      - checkout  # Clona el repositorio
+      - checkout
       - run:
-          name: Compilar el script de cálculo
+          name: Crear directorio de scripts
+          command: mkdir -p scripts
+      - run:
+          name: Crear script de cálculos
           command: |
-            chmod +x calculator.sh  # Hacer el script ejecutable
-            echo "Script de cálculo listo para ejecutar."
+            cat > scripts/calculator.sh << 'EOF'
+            #!/bin/bash
+            
+            function add() {
+                echo $(($1 + $2))
+            }
+            
+            function multiply() {
+                echo $(($1 * $2))
+            }
+            
+            if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+                if [ "$1" == "add" ]; then
+                    add $2 $3
+                elif [ "$1" == "multiply" ]; then
+                    multiply $2 $3
+                fi
+            fi
+            EOF
+      - run:
+          name: Dar permisos de ejecución
+          command: chmod +x scripts/calculator.sh
+      - persist_to_workspace:
+          root: .
+          paths:
+            - scripts
 
   test:
     docker:
-      - image: circleci/bash:latest  # Imagen de Docker con Bash
+      - image: cimg/base:2024.01
     steps:
-      - checkout  # Clona el repositorio
+      - checkout
+      - attach_workspace:
+          at: .
       - run:
           name: Instalar BATS
           command: |
-            sudo apt-get update
-            sudo apt-get install -y bats  # Instala el framework BATS
+            git clone https://github.com/bats-core/bats-core.git
+            cd bats-core
+            ./install.sh /usr/local
       - run:
-          name: Ejecutar pruebas unitarias
-          command: bats test_calculator.bats  # Ejecuta el archivo de pruebas
+          name: Crear tests
+          command: |
+            mkdir -p tests
+            cat > tests/calculator.bats << 'EOF'
+            #!/usr/bin/env bats
+            
+            load "../scripts/calculator.sh"
+            
+            @test "suma 2 + 2 = 4" {
+                result=$(add 2 2)
+                [ "$result" -eq 4 ]
+            }
+            
+            @test "multiplica 3 x 4 = 12" {
+                result=$(multiply 3 4)
+                [ "$result" -eq 12 ]
+            }
+            EOF
+      - run:
+          name: Ejecutar tests
+          command: bats tests/calculator.bats
 
 workflows:
   version: 2
-  build_and_test:
+  build-test:
     jobs:
-      - build  # Ejecuta el job de Build
-      - test:  # Ejecuta el job de Test
+      - build
+      - test:
           requires:
-            - build  # El job de Test depende del job de Build
+            - build
